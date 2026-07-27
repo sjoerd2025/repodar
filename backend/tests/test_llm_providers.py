@@ -1,6 +1,7 @@
 import pytest
 import httpx
 import logging
+from urllib.parse import urlparse
 from unittest.mock import MagicMock
 from app.utils import llm_providers
 from app.utils.llm_providers import (
@@ -215,17 +216,19 @@ async def test_gemini_and_cerebras_fail_fallback_to_groq(monkeypatch, caplog):
     caplog.set_level(logging.INFO)
 
     def mock_post(url, *args, **kwargs):
-        if "generativelanguage.googleapis.com" in url:
+        host = urlparse(url).hostname
+        if host == "generativelanguage.googleapis.com":
             return create_mock_response(url, "", status_code=500)
-        elif "api.cerebras.ai" in url:
+        elif host == "api.cerebras.ai":
             raise httpx.ConnectError("Connection failed")
         else:
             return create_mock_response(url, "Groq Success Response")
 
     async def mock_post_async(url, *args, **kwargs):
-        if "generativelanguage.googleapis.com" in url:
+        host = urlparse(url).hostname
+        if host == "generativelanguage.googleapis.com":
             return create_mock_response(url, "", status_code=500)
-        elif "api.cerebras.ai" in url:
+        elif host == "api.cerebras.ai":
             raise httpx.ConnectError("Connection failed")
         else:
             return create_mock_response(url, "Groq Success Response")
