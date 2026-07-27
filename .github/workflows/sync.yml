@@ -1,4 +1,5 @@
 name: Scheduled Ingestion & Scoring Pipeline
+permissions: {}
 
 on:
   schedule:
